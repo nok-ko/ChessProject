@@ -80,21 +80,7 @@ boxEl.addEventListener("mousemove", e => {
 
     // Move the highlight square to that position!
     movePiece(hoverSquareEl, gameX, gameY)
-
-    // Show the highlight square in case it's hidden (i.e. user just tabbed back 
-    // into the window)
-    showHoverSquare()
 })
-
-boxEl.addEventListener("mouseenter", showHoverSquare)
-
-boxEl.addEventListener("mouseleave", e => {
-    hoverSquareEl.hidden = true;
-})
-
-function showHoverSquare() {
-    hoverSquareEl.hidden = false;
-}
 
 boxEl.addEventListener("click", (e => {
     // If it's not a left click, early exit
