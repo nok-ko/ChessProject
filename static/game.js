@@ -1,5 +1,7 @@
 const boxEl = document.getElementById("box")
 const firstPiece = document.getElementsByClassName("piece").item(0)
+/** @type {HTMLTemplateElement} */
+const pieceTemplate = document.getElementById("template_piece")
 const hoverSquareEl = document.getElementById("hoversquare")
 
 // The target for the 
@@ -15,14 +17,20 @@ console.log(firstPiece)
  */
 function movePiece(pieceEl, x, y) {
     const pieceSize = pieceEl.clientHeight
-    const [actualX, actualY] = [x * pieceSize, y * pieceSize];
-    pieceEl.style.setProperty("transform", `translate(${actualX}px, ${actualY}px)`)
+    const [actualX, actualY] = [x * pieceSize, y * pieceSize]
+    pieceEl.style.setProperty("--piece-offset-x", actualX)
+    pieceEl.style.setProperty("--piece-offset-y", actualY)
 }
 
-function animate(i) {
-    console.log("animating?")
-    movePiece(firstPiece, i % 8, i % 8)
-    setTimeout(() => {animate(i + 1)}, 500)
+/** 
+ * Math utility function. Clamps `x` between `min` and `max`.
+ * @param {Number} x
+ * @param {Number} min
+ * @param {Number} max
+ * @returns {Number} 
+*/
+function clamp(x, min, max) {
+    return Math.min(Math.max(x, min), max)
 }
 /**
  * Given coordinates (in CSS pixels) where 0,0 is the top left corner of 
@@ -35,23 +43,47 @@ function animate(i) {
 function getBoardCoordinates(offsetX, offsetY) {
     // HACK: look this up in the stylesheet instead
     const pieceSize = firstPiece.clientHeight
-    return [Math.floor(offsetX / pieceSize), Math.floor(offsetY / pieceSize)]
+    const boardX = clamp(Math.floor(offsetX / pieceSize), 0, 7)
+    const boardY = clamp(Math.floor(offsetY / pieceSize), 0, 7)
+    return [boardX, boardY]
 }
 
 boxEl.addEventListener("mousemove", e => {
-    showHoverSquare()
-    // HACK: figure out how bubbling works to not do this!
-    if (e.target.id !== "box") {
-        return
+    /** @type {HTMLElement} */
+    const targetEl = e.target
+
+    // When hovering over anything except the hover highlight element itself…
+    if (targetEl.id == "hoversquare") {
+        return;
     }
 
-    // e.layerX and e.layerY are relative coordinates
-    // convert to game coordinates!
-    const [gameX, gameY] = getBoardCoordinates(e.offsetX, e.offsetY)
+    // Get the coordinates of this mousemove, relative to the board element:
+    let offsetX = 0
+    let offsetY = 0
+    if (targetEl.id == "box") {
+        [offsetX, offsetY] = [e.offsetX, e.offsetY]
+    } else if (targetEl.style.length) {
+        [offsetX, offsetY] = [
+            parseInt(targetEl.style.getPropertyValue("--piece-offset-x")),
+            parseInt(targetEl.style.getPropertyValue("--piece-offset-y"))
+        ]
+    }
+
+    // e.offsetX and e.offsetY are coordinates relative to the board element:
+    // Convert them to game coordinates!
+    const [gameX, gameY] = getBoardCoordinates(offsetX, offsetY)
+    console.log([offsetX, offsetY, targetEl])
+
+    // Update the last hovered position
     latestCoordinates[0] = gameX;
     latestCoordinates[1] = gameY;
-    console.log([gameX, gameY], [e.offsetX, e.offsetY], e.target.id)
+
+    // Move the highlight square to that position!
     movePiece(hoverSquareEl, gameX, gameY)
+
+    // Show the highlight square in case it's hidden (i.e. user just tabbed back 
+    // into the window)
+    showHoverSquare()
 })
 
 boxEl.addEventListener("mouseenter", showHoverSquare)
@@ -72,5 +104,5 @@ boxEl.addEventListener("click", (e => {
 
     movePiece(firstPiece, ...latestCoordinates)
     // movePiece(firstPiece, latestCoordinates[0], latestCoordinates[1])
-    
+
 }))

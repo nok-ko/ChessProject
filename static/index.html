@@ -20,6 +20,7 @@
         }
 
         #box {
+            box-sizing: border-box;
             position: relative;
             outline: 1px solid black;
             grid-area: box;
@@ -31,17 +32,36 @@
             max-width: 12.5%;
             top: 0;
             left: 0;
+            --piece-offset-x: 0;
+            --piece-offset-y: 0;
+            --px-offset-x: calc(var(--piece-offset-x) * 1px);
+            --px-offset-y: calc(var(--piece-offset-y) * 1px);
+            transform: translate(var(--px-offset-x), var(--px-offset-y));
         }
         
         .piece {
-            transition: 0.25s ease-in-out;
+            transition: transform 0.25s ease-in-out;
         }
 
+        svg {
+            /* For some reason, SVG elements stop event bubbling.
+             * This rule makes SVG elements invisible to mouse events! Yay.
+             */
+            pointer-events: none;
+        }
 
     </style>
 </head>
 <body>
     <div id="box">
+        <!-- Template that we can copy even if there isn't a piece on the board. -->
+        <template id="template_piece">
+            <div class="piece piecesize">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="25"/>
+                  </svg>
+            </div>
+        </template>
         <div class="piece piecesize">
             <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="50" cy="50" r="25"/>
