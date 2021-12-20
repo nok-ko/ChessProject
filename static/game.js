@@ -42,7 +42,7 @@ function clamp(x, min, max) {
  */
 function getBoardCoordinates(offsetX, offsetY) {
     // HACK: look this up in the stylesheet instead
-    const pieceSize = firstPiece.clientHeight
+    const pieceSize = boxEl.clientHeight / 8
     const boardX = clamp(Math.floor(offsetX / pieceSize), 0, 7)
     const boardY = clamp(Math.floor(offsetY / pieceSize), 0, 7)
     return [boardX, boardY]
