@@ -9,7 +9,7 @@ app.get("/", (req, res) => {
 })
 
 function init() {
-    console.log(`Running on ${server.address.address}:${server.address.port}`)
+    console.log(`Running on http://localhost:${server.address().port}`)
 }
 
 const server = app.listen(8080, init)
