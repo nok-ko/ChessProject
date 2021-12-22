@@ -1,12 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chess!</title>
     <style>
-        body, html {
+        :root {
+            --bg-color: 255, 255, 255;
+        }
+
+        body,
+        html {
             margin: 0;
             height: 100%;
         }
@@ -14,10 +20,37 @@
         body {
             display: grid;
             grid-template: 1fr 70vh 1fr / 1fr 70vh 1fr;
-            grid-template-areas: ". .   ."
-                                 ". box . "
-                                 ". .   .";
+            grid-template-areas: ". logo   ."
+                ". box . "
+                ". .   .";
         }
+
+        #login_dialog {
+            grid-area: box;
+            z-index: 1;
+            background-color: rgb(var(--bg-color));
+        }
+
+        #login_dialog>form {
+            display: grid;
+            grid: repeat(3, 2rem) / max-content 1fr;
+            padding: 2rem 4rem;
+            gap: 0.5rem;
+        }
+
+        #login_dialog>form input {
+            display: inline-block;
+            border-radius: 0.2rem;
+        }
+
+        #login_dialog>form input[type=submit] {
+            margin: auto;
+            font-size: large;
+            max-width: 6rem;
+            grid-column: 1 / span 2;
+        }
+
+
 
         #box {
             position: relative;
@@ -32,27 +65,34 @@
             top: 0;
             left: 0;
         }
-        
+
         .piece {
             transition: 0.25s ease-in-out;
         }
-
-
     </style>
 </head>
+
 <body>
+    <div id="login_dialog">
+        <form action="">
+            <label for="login_email">Email: </label><input type="email" name="login_email" id="email_field">
+            <label for="login_pass">Password: </label><input type="password" name="login_pass" id="pass_field">
+            <input type="submit" value="Log In">
+        </form>
+    </div>
     <div id="box">
         <div class="piece piecesize">
             <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="50" cy="50" r="25"/>
-              </svg>
-        </div>       
-        <div id="hoversquare", class="piecesize" hidden>
+                <circle cx="50" cy="50" r="25" />
+            </svg>
+        </div>
+        <div id="hoversquare" , class="piecesize" hidden>
             <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <rect style="fill:rgba(250,120,0,0.44)" width="100" height="100"/>
-              </svg> 
+                <rect style="fill:rgba(250,120,0,0.44)" width="100" height="100" />
+            </svg>
         </div>
     </div>
     <script src="game.js"></script>
 </body>
+
 </html>
