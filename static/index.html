@@ -21,8 +21,6 @@
 
         #hoversquare {
             background-color: rgba(250,120,0,0);
-            min-height: 12.5%;
-            min-width: 12.5%;
         }
         
         #hoversquare:hover {
@@ -40,17 +38,19 @@
             position: absolute;
             max-height: 12.5%;
             max-width: 12.5%;
-            top: 0;
-            left: 0;
+            min-height: 12.5%;
+            min-width: 12.5%;
+            top: var(--percent-offset-y);
+            left: var(--percent-offset-x);
             --piece-offset-x: 0;
             --piece-offset-y: 0;
-            --px-offset-x: calc(var(--piece-offset-x) * 1px);
-            --px-offset-y: calc(var(--piece-offset-y) * 1px);
-            transform: translate(var(--px-offset-x), var(--px-offset-y));
+            --percent-offset-x: calc(var(--piece-offset-x) * 1%);
+            --percent-offset-y: calc(var(--piece-offset-y) * 1%);
+            /* transform: translate(var(--px-offset-x), var(--px-offset-y)); */
         }
         
         .piece {
-            transition: transform 0.25s ease-in-out;
+            transition: top, left 0.25s, 0.25s ease-in-out;
         }
 
         svg {
@@ -58,6 +58,7 @@
              * This rule makes SVG elements invisible to mouse events! Yay.
              */
             pointer-events: none;
+            display: block;
         }
 
     </style>

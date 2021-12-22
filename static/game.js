@@ -16,7 +16,7 @@ console.log(firstPiece)
  * @param {Number} y - Target board Y-coordinate, [0, 8]
  */
 function movePiece(pieceEl, x, y) {
-    const pieceSize = pieceEl.clientHeight
+    const pieceSize = 12.5 // in % units!
     const [actualX, actualY] = [x * pieceSize, y * pieceSize]
     pieceEl.style.setProperty("--piece-offset-x", actualX)
     pieceEl.style.setProperty("--piece-offset-y", actualY)
@@ -28,26 +28,26 @@ function movePiece(pieceEl, x, y) {
  * @param {Number} min
  * @param {Number} max
  * @returns {Number} 
-*/
-function clamp(x, min, max) {
+ */
+Math.clamp = function (x, min, max) {
     return Math.min(Math.max(x, min), max)
 }
+
 /**
- * Given coordinates (in CSS pixels) where 0,0 is the top left corner of 
- * the board, returns the logical board coordinates corresponding to that 
- * position.
- * @param  {Number} offsetX
- * @param  {Number} offsetY
- * @returns {Array.<Number>} TODO: fix this type declaration
+ * Given two numbers, `x` and `d`, find the nearest multiple of `1/d` that is less than `x`.
+ * @see https://www.desmos.com/calculator/tfwnaosfjc
+ * @param {Number} x
+ * @param {Number} d
+ * @returns {Number} the nearest simple fraction with denominator `d` below `x`.
  */
-function getBoardCoordinates(offsetX, offsetY) {
-    // HACK: look this up in the stylesheet instead
-    const pieceSize = boxEl.clientHeight / 8
-    const boardX = clamp(Math.floor(offsetX / pieceSize), 0, 7)
-    const boardY = clamp(Math.floor(offsetY / pieceSize), 0, 7)
-    return [boardX, boardY]
+function nearestFractionDown(x, d) {
+    return Math.floor(d * x) / d
 }
 
+/* TODO: I know there's a way to intelligently pass the event data to the boxEl 
+* instead of doing these weird calculations… but I don't know how. 
+* Will figure it out later.
+*/ 
 boxEl.addEventListener("mousemove", e => {
     /** @type {HTMLElement} */
     const targetEl = e.target
@@ -58,21 +58,23 @@ boxEl.addEventListener("mousemove", e => {
     }
 
     // Get the coordinates of this mousemove, relative to the board element:
-    let offsetX = 0
-    let offsetY = 0
+    let [offsetX, offsetY] = [0, 0]
+    const boxSize = boxEl.getClientRects().item(0).width
     if (targetEl.id == "box") {
-        [offsetX, offsetY] = [e.offsetX, e.offsetY]
-    } else if (targetEl.style.length) {
-        [offsetX, offsetY] = [
-            parseInt(targetEl.style.getPropertyValue("--piece-offset-x")),
-            parseInt(targetEl.style.getPropertyValue("--piece-offset-y"))
-        ]
+        // Nearest 1/8th, times 100 for percent values
+        offsetX = Math.clamp(nearestFractionDown(e.offsetX/boxSize, 8) * 100, 0, 100)
+        offsetY = Math.clamp(nearestFractionDown(e.offsetY/boxSize, 8) * 100, 0, 100)
+    }
+    if (targetEl.classList.contains("piecesize")) {
+        // We're hovering over a piece/piecelike element, so just use its stylesheet properties.
+        offsetX = parseInt(targetEl.style.getPropertyValue("--piece-offset-x"))
+        offsetY = parseInt(targetEl.style.getPropertyValue("--piece-offset-y"))
     }
 
     // e.offsetX and e.offsetY are coordinates relative to the board element:
     // Convert them to game coordinates!
-    const [gameX, gameY] = getBoardCoordinates(offsetX, offsetY)
-    console.log([offsetX, offsetY, targetEl])
+    const [gameX, gameY] = [offsetX / 12.5, offsetY / 12.5]
+    console.log([offsetX, offsetY], [gameX, gameY], targetEl)
 
     // Update the last hovered position
     latestCoordinates[0] = gameX;
@@ -87,8 +89,5 @@ boxEl.addEventListener("click", (e => {
     if (e.button != 0) {
         return;
     }
-
     movePiece(firstPiece, ...latestCoordinates)
-    // movePiece(firstPiece, latestCoordinates[0], latestCoordinates[1])
-
 }))
