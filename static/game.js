@@ -1,5 +1,7 @@
 const boxEl = document.getElementById("box")
 const firstPiece = document.getElementsByClassName("piece").item(0)
+/** @type {HTMLTemplateElement} */
+const pieceTemplate = document.getElementById("template_piece")
 const hoverSquareEl = document.getElementById("hoversquare")
 
 // The target for the 
@@ -14,63 +16,78 @@ console.log(firstPiece)
  * @param {Number} y - Target board Y-coordinate, [0, 8]
  */
 function movePiece(pieceEl, x, y) {
-    const pieceSize = pieceEl.clientHeight
-    const [actualX, actualY] = [x * pieceSize, y * pieceSize];
-    pieceEl.style.setProperty("transform", `translate(${actualX}px, ${actualY}px)`)
+    const pieceSize = 12.5 // in % units!
+    const [actualX, actualY] = [x * pieceSize, y * pieceSize]
+    pieceEl.style.setProperty("--piece-offset-x", actualX)
+    pieceEl.style.setProperty("--piece-offset-y", actualY)
 }
 
-function animate(i) {
-    console.log("animating?")
-    movePiece(firstPiece, i % 8, i % 8)
-    setTimeout(() => {animate(i + 1)}, 500)
-}
-/**
- * Given coordinates (in CSS pixels) where 0,0 is the top left corner of 
- * the board, returns the logical board coordinates corresponding to that 
- * position.
- * @param  {Number} offsetX
- * @param  {Number} offsetY
- * @returns {Array.<Number>} TODO: fix this type declaration
+/** 
+ * Math utility function. Clamps `x` between `min` and `max`.
+ * @param {Number} x
+ * @param {Number} min
+ * @param {Number} max
+ * @returns {Number} 
  */
-function getBoardCoordinates(offsetX, offsetY) {
-    // HACK: look this up in the stylesheet instead
-    const pieceSize = firstPiece.clientHeight
-    return [Math.floor(offsetX / pieceSize), Math.floor(offsetY / pieceSize)]
+Math.clamp = function (x, min, max) {
+    return Math.min(Math.max(x, min), max)
 }
 
+/**
+ * Given two numbers, `x` and `d`, find the nearest multiple of `1/d` that is less than `x`.
+ * @see https://www.desmos.com/calculator/tfwnaosfjc
+ * @param {Number} x
+ * @param {Number} d
+ * @returns {Number} the nearest simple fraction with denominator `d` below `x`.
+ */
+function nearestFractionDown(x, d) {
+    return Math.floor(d * x) / d
+}
+
+/* TODO: I know there's a way to intelligently pass the event data to the boxEl 
+* instead of doing these weird calculations… but I don't know how. 
+* Will figure it out later.
+*/ 
 boxEl.addEventListener("mousemove", e => {
-    showHoverSquare()
-    // HACK: figure out how bubbling works to not do this!
-    if (e.target.id !== "box") {
-        return
+    /** @type {HTMLElement} */
+    const targetEl = e.target
+
+    // When hovering over anything except the hover highlight element itself…
+    if (targetEl.id == "hoversquare") {
+        return;
     }
 
-    // e.layerX and e.layerY are relative coordinates
-    // convert to game coordinates!
-    const [gameX, gameY] = getBoardCoordinates(e.offsetX, e.offsetY)
+    // Get the coordinates of this mousemove, relative to the board element:
+    let [offsetX, offsetY] = [0, 0]
+    const boxSize = boxEl.getClientRects().item(0).width
+    if (targetEl.id == "box") {
+        // Nearest 1/8th, times 100 for percent values
+        offsetX = Math.clamp(nearestFractionDown(e.offsetX/boxSize, 8) * 100, 0, 100)
+        offsetY = Math.clamp(nearestFractionDown(e.offsetY/boxSize, 8) * 100, 0, 100)
+    }
+    if (targetEl.classList.contains("piecesize")) {
+        // We're hovering over a piece/piecelike element, so just use its stylesheet properties.
+        offsetX = parseInt(targetEl.style.getPropertyValue("--piece-offset-x"))
+        offsetY = parseInt(targetEl.style.getPropertyValue("--piece-offset-y"))
+    }
+
+    // e.offsetX and e.offsetY are coordinates relative to the board element:
+    // Convert them to game coordinates!
+    const [gameX, gameY] = [offsetX / 12.5, offsetY / 12.5]
+    console.log([offsetX, offsetY], [gameX, gameY], targetEl)
+
+    // Update the last hovered position
     latestCoordinates[0] = gameX;
     latestCoordinates[1] = gameY;
-    console.log([gameX, gameY], [e.offsetX, e.offsetY], e.target.id)
+
+    // Move the highlight square to that position!
     movePiece(hoverSquareEl, gameX, gameY)
 })
-
-boxEl.addEventListener("mouseenter", showHoverSquare)
-
-boxEl.addEventListener("mouseleave", e => {
-    hoverSquareEl.hidden = true;
-})
-
-function showHoverSquare() {
-    hoverSquareEl.hidden = false;
-}
 
 boxEl.addEventListener("click", (e => {
     // If it's not a left click, early exit
     if (e.button != 0) {
         return;
     }
-
     movePiece(firstPiece, ...latestCoordinates)
-    // movePiece(firstPiece, latestCoordinates[0], latestCoordinates[1])
-    
 }))
