@@ -1,0 +1,137 @@
+@font-face {
+    font-family: 'Lambda';
+    src: url('fonts/Lambda-YzB98.eot');
+    src: local('☺'), url('fonts/Lambda-YzB98.woff') format('woff'), url('fonts/Lambda-YzB98.ttf') format('truetype'), url('fonts/Lambda-YzB98.svg') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Lambda';
+    src: url('fonts/LambdaItalic-rge19.eot');
+    src: local('☺'), url('fonts/LambdaItalic-rge19.woff') format('woff'), url('fonts/LambdaItalic-rge19.ttf') format('truetype'), url('fonts/LambdaItalic-rge19.svg') format('svg');
+    font-weight: normal;
+    font-style: italic;
+}
+
+:root {
+    --bg-color: 255, 255, 255;
+}
+
+body,
+html {
+    font-family: "Lambda", "Helvetica", sans-serif;
+    font-size: 1.3rem;
+    margin: 0;
+    height: 100%;
+}
+
+input {
+    font: inherit;
+}
+
+body {
+    display: grid;
+    grid-template: 1fr 70vh 1fr / 1fr 70vh 1fr;
+    grid-template-areas: "head head head"
+        ". box . "
+        ". .   .";
+}
+
+header {
+    grid-area: head;
+}
+
+header nav {
+    display: flex;
+    justify-content: center;
+}
+
+nav ul {
+    display: flex;
+    justify-content: space-between;
+    min-width: 35rem;
+    list-style: none;
+    padding: 0;
+}
+
+nav li {
+    display: inline;
+    font-size: 2.1rem;
+}
+
+.logos {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+header img {
+    max-height: 4rem;
+}
+
+#login_dialog {
+    grid-area: box;
+    z-index: 1;
+    background-color: rgb(var(--bg-color));
+}
+
+#login_dialog>form {
+    display: grid;
+    grid: repeat(3, 2rem) / max-content 1fr;
+    padding: 2rem 4rem;
+    gap: 0.5rem;
+}
+
+#login_dialog>form input {
+    display: inline-block;
+    border-radius: 0.2rem;
+}
+
+#login_dialog>form input[type=submit] {
+    margin: auto;
+    font-size: large;
+    max-width: 6rem;
+    grid-column: 1 / span 2;
+}
+
+#hoversquare {
+    background-color: rgba(250, 120, 0, 0);
+}
+
+#hoversquare:hover {
+    background-color: rgba(250, 120, 0, 0.44);
+}
+
+#box {
+    box-sizing: border-box;
+    position: relative;
+    border: 1px solid black;
+    grid-area: box;
+}
+
+.piecesize {
+    position: absolute;
+    max-height: 12.5%;
+    max-width: 12.5%;
+    min-height: 12.5%;
+    min-width: 12.5%;
+    top: var(--percent-offset-y);
+    left: var(--percent-offset-x);
+    --piece-offset-x: 0;
+    --piece-offset-y: 0;
+    --percent-offset-x: calc(var(--piece-offset-x) * 1%);
+    --percent-offset-y: calc(var(--piece-offset-y) * 1%);
+}
+
+.piece {
+    transition: top, left 0.25s, 0.25s ease-in-out;
+}
+
+svg {
+    /* For some reason, SVG elements stop event bubbling.
+     * This rule makes SVG elements invisible to mouse events! Yay.
+     */
+    pointer-events: none;
+    display: block;
+}
