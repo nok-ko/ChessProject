@@ -20,9 +20,32 @@
         body {
             display: grid;
             grid-template: 1fr 70vh 1fr / 1fr 70vh 1fr;
-            grid-template-areas: ". logo   ."
+            grid-template-areas: "head head head"
                 ". box . "
                 ". .   .";
+        }
+
+        header {
+            grid-area: head;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        nav li {
+            display: inline;
+        }
+
+        .logos {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header img {
+            max-height: 4rem;
         }
 
         #login_dialog {
@@ -73,6 +96,19 @@
 </head>
 
 <body>
+    <header>
+        <div class="logos">
+            <img id="logo" src="assets/Main Wordmark.svg" alt="">
+            <img id="tagline" src="assets/Tagline.svg" alt="">
+        </div>
+        <nav>
+            <ul>
+                <li>Log In</li>
+                <li>Sign Up</li>
+                <li>Log Out</li>
+            </ul>
+        </nav>
+    </header>
     <div id="login_dialog">
         <form action="">
             <label for="login_email">Email: </label><input type="email" name="login_email" id="email_field">
