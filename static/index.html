@@ -19,9 +19,18 @@
                                  ". .   .";
         }
 
+        #hoversquare {
+            background-color: rgba(250,120,0,0);
+        }
+        
+        #hoversquare:hover {
+            background-color: rgba(250,120,0,0.44);
+        }
+
         #box {
+            box-sizing: border-box;
             position: relative;
-            outline: 1px solid black;
+            border: 1px solid black;
             grid-area: box;
         }
 
@@ -29,28 +38,47 @@
             position: absolute;
             max-height: 12.5%;
             max-width: 12.5%;
-            top: 0;
-            left: 0;
+            min-height: 12.5%;
+            min-width: 12.5%;
+            top: var(--percent-offset-y);
+            left: var(--percent-offset-x);
+            --piece-offset-x: 0;
+            --piece-offset-y: 0;
+            --percent-offset-x: calc(var(--piece-offset-x) * 1%);
+            --percent-offset-y: calc(var(--piece-offset-y) * 1%);
+            /* transform: translate(var(--px-offset-x), var(--px-offset-y)); */
         }
         
         .piece {
-            transition: 0.25s ease-in-out;
+            transition: top, left 0.25s, 0.25s ease-in-out;
         }
 
+        svg {
+            /* For some reason, SVG elements stop event bubbling.
+             * This rule makes SVG elements invisible to mouse events! Yay.
+             */
+            pointer-events: none;
+            display: block;
+        }
 
     </style>
 </head>
 <body>
     <div id="box">
+        <!-- Template that we can copy even if there isn't a piece on the board. -->
+        <template id="template_piece">
+            <div class="piece piecesize">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="25"/>
+                  </svg>
+            </div>
+        </template>
         <div class="piece piecesize">
             <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="50" cy="50" r="25"/>
               </svg>
         </div>       
-        <div id="hoversquare", class="piecesize" hidden>
-            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <rect style="fill:rgba(250,120,0,0.44)" width="100" height="100"/>
-              </svg> 
+        <div id="hoversquare" class="piecesize">
         </div>
     </div>
     <script src="game.js"></script>
