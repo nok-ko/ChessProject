@@ -32,7 +32,7 @@ function init() {
     db.serialize(function () {
         // Create the users table
         db.exec(`
-        
+            create table if not exists users (handle varchar(50), email varchar(200), password_hash binary(60));
         `)
     })
 
