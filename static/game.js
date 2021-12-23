@@ -12,7 +12,9 @@ document.getElementById("login_link").addEventListener("click", function toggleL
     dialog.hidden = !dialog.hidden
 })
 
-document.getElementById("login_submit").addEventListener("click", function handleLogin() {
+document.getElementById("login_submit").addEventListener("click", function handleLogin(event) {
+    event.preventDefault() // don't reload the page on submit!
+
     /** @type {HTMLInputElement} */
     const emailField = document.getElementById("email_field")
     /** @type {HTMLInputElement} */
@@ -21,14 +23,20 @@ document.getElementById("login_submit").addEventListener("click", function handl
     url.pathname = "login"
     url.searchParams.append("email", emailField.value)
     url.searchParams.append("pass", passField.value)
-    
+
     // console.log(url.toString())
 
-    fetch(url, {method:"POST"}).then(res => {
-        console.log(res)
+    fetch(url, {
+        method: "POST"
+    }).then(async res => {
+        const body = await res.json()
+        if (res.ok) {
+            console.log("Logged in! Got session ID: " + body.sessionID)
+        } else {
+            console.error(await body.error)
+            // TODO: 'display error' function & UI Element
+        }
     })
-    
-    return false; // don't reload the page on submit!
 })
 
 /**
@@ -67,9 +75,9 @@ function nearestFractionDown(x, d) {
 }
 
 /* TODO: I know there's a way to intelligently pass the event data to the boxEl 
-* instead of doing these weird calculations… but I don't know how. 
-* Will figure it out later.
-*/ 
+ * instead of doing these weird calculations… but I don't know how. 
+ * Will figure it out later.
+ */
 boxEl.addEventListener("mousemove", e => {
     /** @type {HTMLElement} */
     const targetEl = e.target
@@ -84,8 +92,8 @@ boxEl.addEventListener("mousemove", e => {
     const boxSize = boxEl.getClientRects().item(0).width
     if (targetEl.id == "box") {
         // Nearest 1/8th, times 100 for percent values
-        offsetX = Math.clamp(nearestFractionDown(e.offsetX/boxSize, 8) * 100, 0, 100)
-        offsetY = Math.clamp(nearestFractionDown(e.offsetY/boxSize, 8) * 100, 0, 100)
+        offsetX = Math.clamp(nearestFractionDown(e.offsetX / boxSize, 8) * 100, 0, 100)
+        offsetY = Math.clamp(nearestFractionDown(e.offsetY / boxSize, 8) * 100, 0, 100)
     }
     if (targetEl.classList.contains("piecesize")) {
         // We're hovering over a piece/piecelike element, so just use its stylesheet properties.

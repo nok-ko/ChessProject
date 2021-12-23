@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "run-prod": "set NODE_ENV=production&& nodemon index.js",
+    "run": "set NODE_ENV=development&& nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -17,8 +19,9 @@
   },
   "homepage": "https://github.com/nok-ko/ChessProject#readme",
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "express": "^4.17.2",
     "express-session": "^1.17.2",
-    "sqlite3": "^5.0.2"
+    "sqlite-async": "^1.1.2"
   }
 }
