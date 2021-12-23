@@ -7,14 +7,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chess!</title>
     <style>
+        @font-face {
+            font-family: 'Lambda';
+            src: url('fonts/Lambda-YzB98.eot');
+            src: local('☺'), url('fonts/Lambda-YzB98.woff') format('woff'), url('fonts/Lambda-YzB98.ttf') format('truetype'), url('fonts/Lambda-YzB98.svg') format('svg');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Lambda';
+            src: url('fonts/LambdaItalic-rge19.eot');
+            src: local('☺'), url('fonts/LambdaItalic-rge19.woff') format('woff'), url('fonts/LambdaItalic-rge19.ttf') format('truetype'), url('fonts/LambdaItalic-rge19.svg') format('svg');
+            font-weight: normal;
+            font-style: italic;
+        }
+
         :root {
             --bg-color: 255, 255, 255;
         }
 
         body,
         html {
+            font-family: "Lambda", "Helvetica", sans-serif;
+            font-size: 1.3rem;
             margin: 0;
             height: 100%;
+        }
+
+        input {
+            font: inherit;
         }
 
         body {
@@ -29,13 +51,22 @@
             grid-area: head;
         }
 
+        header nav {
+            display: flex;
+            justify-content: center;
+        }
+
         nav ul {
+            display: flex;
+            justify-content: space-between;
+            min-width: 35rem;
             list-style: none;
             padding: 0;
         }
 
         nav li {
             display: inline;
+            font-size: 2.1rem;
         }
 
         .logos {
@@ -74,11 +105,11 @@
         }
 
         #hoversquare {
-            background-color: rgba(250,120,0,0);
+            background-color: rgba(250, 120, 0, 0);
         }
-        
+
         #hoversquare:hover {
-            background-color: rgba(250,120,0,0.44);
+            background-color: rgba(250, 120, 0, 0.44);
         }
 
         #box {
@@ -114,7 +145,6 @@
             pointer-events: none;
             display: block;
         }
-
     </style>
 </head>
 
@@ -144,15 +174,15 @@
         <template id="template_piece">
             <div class="piece piecesize">
                 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="50" cy="50" r="25"/>
-                  </svg>
+                    <circle cx="50" cy="50" r="25" />
+                </svg>
             </div>
         </template>
         <div class="piece piecesize">
             <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="50" cy="50" r="25"/>
-              </svg>
-        </div>       
+                <circle cx="50" cy="50" r="25" />
+            </svg>
+        </div>
         <div id="hoversquare" class="piecesize">
         </div>
     </div>
