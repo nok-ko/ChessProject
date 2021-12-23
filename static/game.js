@@ -7,7 +7,29 @@ const hoverSquareEl = document.getElementById("hoversquare")
 // The target for the 
 const latestCoordinates = [0, 0]
 
-console.log(firstPiece)
+document.getElementById("login_link").addEventListener("click", function toggleLoginDialog() {
+    const dialog = document.getElementById("login_dialog")
+    dialog.hidden = !dialog.hidden
+})
+
+document.getElementById("login_submit").addEventListener("click", function handleLogin() {
+    /** @type {HTMLInputElement} */
+    const emailField = document.getElementById("email_field")
+    /** @type {HTMLInputElement} */
+    const passField = document.getElementById("pass_field")
+    const url = new URL(location.origin)
+    url.pathname = "login"
+    url.searchParams.append("email", emailField.value)
+    url.searchParams.append("pass", passField.value)
+    
+    // console.log(url.toString())
+
+    fetch(url, {method:"POST"}).then(res => {
+        console.log(res)
+    })
+    
+    return false; // don't reload the page on submit!
+})
 
 /**
  * Visually moves the specified piece element to the board X and Y coords provided.

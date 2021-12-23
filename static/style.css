@@ -1,7 +1,7 @@
 @font-face {
     font-family: 'Lambda';
     src: url('fonts/Lambda-YzB98.eot');
-    src: local('☺'), url('fonts/Lambda-YzB98.woff') format('woff'), url('fonts/Lambda-YzB98.ttf') format('truetype'), url('fonts/Lambda-YzB98.svg') format('svg');
+    src: local('☺'), url('fonts/Lambda-YzB98.ttf') format('truetype'), url('fonts/Lambda-YzB98.svg') format('svg');
     font-weight: normal;
     font-style: normal;
 }
@@ -9,7 +9,7 @@
 @font-face {
     font-family: 'Lambda';
     src: url('fonts/LambdaItalic-rge19.eot');
-    src: local('☺'), url('fonts/LambdaItalic-rge19.woff') format('woff'), url('fonts/LambdaItalic-rge19.ttf') format('truetype'), url('fonts/LambdaItalic-rge19.svg') format('svg');
+    src: local('☺'), url('fonts/LambdaItalic-rge19.ttf') format('truetype'), url('fonts/LambdaItalic-rge19.svg') format('svg');
     font-weight: normal;
     font-style: italic;
 }
@@ -134,4 +134,14 @@ svg {
      */
     pointer-events: none;
     display: block;
+}
+
+a {
+    color: inherit;
+    transition: transform, color ease-in-out, ease-in-out 0.6s,0.2s;
+}
+
+a:hover {
+    transform: scale(1.1);
+    color: orangered;
 }

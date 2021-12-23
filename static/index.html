@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,7 +7,6 @@
     <title>Chess!</title>
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
     <header>
         <div class="logos">
@@ -17,17 +15,27 @@
         </div>
         <nav>
             <ul>
-                <li>Log In</li>
-                <li>Sign Up</li>
-                <li>Log Out</li>
+                <a id="login_link" href="#">
+                    <li>Log In</li>
+                </a>
+                <a id="signup_link" href="#">
+                    <li>Sign Up</li>
+                </a>
+                <a id="logout_link" href="#" hidden>
+                    <li>Log Out</li>
+                </a>
             </ul>
         </nav>
     </header>
-    <div id="login_dialog">
+    <div id="login_dialog" hidden>
         <form action="">
-            <label for="login_email">Email: </label><input type="email" name="login_email" id="email_field">
-            <label for="login_pass">Password: </label><input type="password" name="login_pass" id="pass_field">
-            <input type="submit" value="Log In">
+            <label for="login_email">Email: </label>
+            <input type="email" name="login_email" id="email_field">
+            
+            <label for="login_pass">Password: </label>
+            <input type="password" name="login_pass" id="pass_field">
+            
+            <input id="login_submit" type="submit" value="Log In">
         </form>
     </div>
     <div id="box">
