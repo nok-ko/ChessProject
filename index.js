@@ -38,11 +38,20 @@ app.get("/", (req, res) => {
 })
 
 app.post("/signup", async function (req, res) {
-    // Trim parameters to fit DB schema requirements
     /** @type {String} */
-    const email = req.query.email.trim().substring(0, 200)
+    const email = req.query.email
     /** @type {String} */
-    const handle = req.query.handle.trim().substring(0, 50)
+    const handle = req.query.handle
+
+    // Reject emails and handles that are too long!
+    if (email.length > 200) {
+        sendEmailTooLongError(res)
+        return
+    }
+
+    if (handle.length > 50) {
+        sendHandleTooLongError(res)
+    }
 
     // Doesn't matter how long the password is, we're hashing it with bcrypt anyway.
     /** @type {String} */
@@ -97,28 +106,37 @@ app.post("/signup", async function (req, res) {
     })
 
     // TODO: seriously, look up the proper error codes!
-
+    // TODO: could refactor this quite nicely…
     function sendEmailError(res) {
         // At some point, should check emails against a list of common spam domains
         // and emit this error if a user tries to sign up with an email address on
         // that list.
-        res.status(403)
-        res.json({
+        res.status(403).json({
             error: "Could not sign up with this email address."
         })
     }
 
     function sendHandleError(res) {
-        res.status(403)
-        res.json({
+        res.status(403).json({
             error: "Could not sign up with this handle."
         })
     }
 
     function sendEmptyError(res) {
-        res.status(403)
-        res.json({
+        res.status(403).json({
             error: "The handle, email, and password fields are required."
+        })
+    }
+
+    function sendEmailTooLongError(res) {
+        res.status(403).json({
+            error: "Email must be 200 characters or shorter."
+        })
+    }
+    
+    function sendHandleTooLongError(res) {
+        res.status(403).json({
+            error: "Handle must be 50 characters or shorter."
         })
     }
 })
