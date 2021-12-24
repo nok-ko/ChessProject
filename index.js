@@ -21,6 +21,7 @@ const sessionConfig = {
 
 // Secure cookies require SSL, i.e. running behind a reverse proxy
 // So, only enable them in production environments. 
+// TODO: Make this actually work?
 // ($ npm run run-prod)
 if (app.get('env') === 'production') {
     app.set('trust proxy', 1) // trust first proxy (nginx)
@@ -35,15 +36,63 @@ app.get("/", (req, res) => {
     res.send(fs.readFileSync("./static/index.html"))
 })
 
-app.post("/signup", (req, res) => {
-    res.sendStatus(501) // not implemented!
+app.post("/signup", async function (req, res) {
+    const email = req.query.email.trim().substring(0, 200)
+    const existingUser = await db.get("select * from users where email = ?", email)
+
+    // TODO: validate everything.
+    // Reject empty fields!
+    // Reject non-ascii characters in handles or emails?
+
+    // The user already existing in our system is an error, we
+    // shouldn't overwrite existing accounts. 
+    // Exit before creating a record.
+    if (existingUser !== undefined) {
+        sendEmailError(res)
+        return
+    }
+
+    // Now, hash the password and save to DB!
+    // (We should only do this once we're more or less sure the user isn't
+    // a spambot, since hashing is slow.)
+    // TODO: rate limiting, etc.
+    const hash = await bcrypt.hash(req.query.pass, 10)
+    const handle = req.query.handle
+
+    // TODO: .catch(err => ) DB errors somehow
+    await db.run("insert into users (handle, email, password_hash) values (?, ?, ?)", handle, email, hash)
+
+    req.session.user = {
+        handle: handle,
+        email: email
+    }
+
+    // Send back an OK response with some user information
+    res.status(200)
+    res.json({
+        sessionID: req.sessionID,
+        handle: handle,
+        email: email
+    })
+
+
+    function sendEmailError(res) {
+        // At some point, should check emails against a list of common spam domains
+        // and emit this error if a user tries to sign up with an email address on
+        // that list.
+        res.status(403)
+        res.json({
+            error: "Could not sign up with this email address."
+        })
+    }
 })
 
 app.post("/login", async function (req, res) {
+    // TODO: rate limiting, spam checks, proper session invalidation, etc.
     const email = req.query.email.trim().substring(0, 200) // cutoff at 200 chars, email column size
     const pass = req.query.pass
     console.log(`processing login request for ${email}`)
-    
+
     // Check if we have an entry for that email address
     const userRecord = await db.get("select * from users where email = ?", email)
     if (userRecord === undefined) {
@@ -58,6 +107,8 @@ app.post("/login", async function (req, res) {
             handle: userRecord.handle,
             email: userRecord.email
         }
+
+        // Send back an OK response with some user information
         res.status(200)
         res.json({
             sessionID: req.sessionID,

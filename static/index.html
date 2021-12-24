@@ -27,15 +27,32 @@
             </ul>
         </nav>
     </header>
-    <div id="login_dialog" hidden>
+    <div id="login_dialog" class="dialog" hidden>
         <form action="">
             <label for="login_email">Email: </label>
-            <input type="email" name="login_email" id="email_field">
+            <input type="email" name="login_email" id="login_email_field">
             
             <label for="login_pass">Password: </label>
-            <input type="password" name="login_pass" id="pass_field">
+            <input type="password" name="login_pass" id="login_pass_field">
             
             <input id="login_submit" type="submit" value="Log In">
+        </form>
+    </div>
+    <div id="signup_dialog" class="dialog" hidden>
+        <form action="">
+            <label for="signup_email">Email: </label>
+            <input type="email" name="signup_email" id="signup_email_field">
+
+            <label for="signup_handle">Handle: </label>
+            <input type="text" name="signup_handle" id="signup_handle_field">
+
+            <label for="signup_pass">Password: </label>
+            <input type="password" name="signup_pass" id="signup_pass_field">
+
+            <label for="signup_pass_confirm">Confirm Password: </label>
+            <input type="password" name="signup_pass_confirm" id="signup_pass_confirm_field">
+
+            <input type="submit" id="signup_submit" value="Sign Up">
         </form>
     </div>
     <div id="box">

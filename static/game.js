@@ -1,24 +1,44 @@
+"use strict"
 const boxEl = document.getElementById("box")
 const firstPiece = document.getElementsByClassName("piece").item(0)
 /** @type {HTMLTemplateElement} */
 const pieceTemplate = document.getElementById("template_piece")
 const hoverSquareEl = document.getElementById("hoversquare")
 
-// The target for the 
+// Last-hovered square on the chessboard. (In board coordinates.)
 const latestCoordinates = [0, 0]
 
-document.getElementById("login_link").addEventListener("click", function toggleLoginDialog() {
-    const dialog = document.getElementById("login_dialog")
-    dialog.hidden = !dialog.hidden
-})
+/**
+ * Hide a class of elements, and toggle whether the specified element is hidden.
+ * Used for showing one dialog at a time.
+ * @param  {String} elementClass - element class to hide (set `hidden=true` on all elements of this class.)
+ * @param  {HTMLElement} shownEl - element to show (unset its `hidden` property.)
+ */
+function toggleHiddenOneOfClass(elementClass, shownEl) {
+    const wasHidden = shownEl.hidden;
+    for (const elInClass of document.getElementsByClassName(elementClass)) {
+        elInClass.hidden = true;
+    }
+    shownEl.hidden = !wasHidden;
+}
+
+const loginDialogEl = document.getElementById("login_dialog")
+document.getElementById("login_link").addEventListener("click",
+    () => toggleHiddenOneOfClass("dialog", loginDialogEl)
+)
+
+const signupDialogEl = document.getElementById("signup_dialog")
+document.getElementById("signup_link").addEventListener("click",
+    () => toggleHiddenOneOfClass("dialog", signupDialogEl)
+)
 
 document.getElementById("login_submit").addEventListener("click", function handleLogin(event) {
     event.preventDefault() // don't reload the page on submit!
 
     /** @type {HTMLInputElement} */
-    const emailField = document.getElementById("email_field")
+    const emailField = document.getElementById("login_email_field")
     /** @type {HTMLInputElement} */
-    const passField = document.getElementById("pass_field")
+    const passField = document.getElementById("login_pass_field")
     const url = new URL(location.origin)
     url.pathname = "login"
     url.searchParams.append("email", emailField.value)
@@ -32,6 +52,58 @@ document.getElementById("login_submit").addEventListener("click", function handl
         const body = await res.json()
         if (res.ok) {
             console.log("Logged in! Got session ID: " + body.sessionID)
+            // TODO: display “log out” button
+        } else {
+            console.error(await body.error)
+            // TODO: 'display error' function & UI Element
+        }
+    })
+})
+
+document.getElementById("signup_submit").addEventListener("click", function handleLogin(event) {
+    event.preventDefault() // don't reload the page on submit!
+
+    // TODO: validate handles and emails before letting users submit the form.
+    /** @type {HTMLInputElement} */
+    const handleField = document.getElementById("signup_handle_field")
+    /** @type {HTMLInputElement} */
+    const emailField = document.getElementById("signup_email_field")
+    /** @type {HTMLInputElement} */
+    const passField = document.getElementById("signup_pass_field")
+    /** @type {HTMLInputElement} */
+    const confirmPassField = document.getElementById("signup_pass_confirm_field")
+
+    // TODO: reject empty fields!
+    // (really, should use HTML required attributes and other form validation stuff)
+    // Reject nonmatching password/confirm password pairs
+    if (confirmPassField.value !== passField.value) {
+        // Show error message, exit early.
+        // TODO: don't use alert() here!
+        alert("Password/Confirm Password fields do not match!")
+        return;
+    }
+
+    // TODO: use Dropbox's zxcvn for password strength filtering
+    // TODO: consider a captcha?
+
+    const url = new URL(location.origin)
+    url.pathname = "signup"
+    url.searchParams.append("handle", handleField.value)
+    url.searchParams.append("email", emailField.value)
+    url.searchParams.append("pass", passField.value)
+
+    // console.log(url.toString())
+
+    fetch(url, {
+        method: "POST"
+    }).then(async res => {
+        const body = await res.json()
+        if (res.ok) {
+            console.log("Signed up! Got session ID: " + body.sessionID)
+            // TODO: reset field values?
+            // TODO: display “log out” button
+            // Close the dialog
+            signupDialogEl.hidden = true;
         } else {
             console.error(await body.error)
             // TODO: 'display error' function & UI Element
