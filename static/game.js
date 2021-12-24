@@ -11,24 +11,33 @@ const latestCoordinates = [0, 0]
 /**
  * Hide a class of elements, and toggle whether the specified element is hidden.
  * Used for showing one dialog at a time.
- * @param  {String} elementClass - element class to hide (set `hidden=true` on all elements of this class.)
- * @param  {HTMLElement} shownEl - element to show (unset its `hidden` property.)
+ * @param  {String} elementClass - element class to hide (set `visibility:hidden` on all elements of this class.)
+ * @param  {HTMLElement} shownEl - element to show (toggle its `visibility` property.)
  */
 function toggleHiddenOneOfClass(elementClass, shownEl) {
-    const wasHidden = shownEl.hidden;
+    const oldVisibility = shownEl.style.getPropertyValue("visibility") ?? "visible";
+
     for (const elInClass of document.getElementsByClassName(elementClass)) {
-        elInClass.hidden = true;
+        elInClass.style.setProperty("visibility", "hidden")
     }
-    shownEl.hidden = !wasHidden;
+    if (oldVisibility == "visible") {
+        shownEl.style.setProperty("visibility", "hidden")
+    } else {
+        shownEl.style.setProperty("visibility", "visible")
+    }
 }
 
+const logoutLinkEl = document.getElementById("logout_link")
+const signupLinkEl = document.getElementById("signup_link")
+const loginLinkEl = document.getElementById("login_link")
+
 const loginDialogEl = document.getElementById("login_dialog")
-document.getElementById("login_link").addEventListener("click",
+loginLinkEl.addEventListener("click",
     () => toggleHiddenOneOfClass("dialog", loginDialogEl)
 )
 
 const signupDialogEl = document.getElementById("signup_dialog")
-document.getElementById("signup_link").addEventListener("click",
+signupLinkEl.addEventListener("click",
     () => toggleHiddenOneOfClass("dialog", signupDialogEl)
 )
 
@@ -52,7 +61,9 @@ document.getElementById("login_submit").addEventListener("click", function handl
         const body = await res.json()
         if (res.ok) {
             console.log("Logged in! Got session ID: " + body.sessionID)
-            // TODO: display “log out” button
+            // Display logout link, and hide the dialog
+            toggleHiddenOneOfClass("nav_link", logoutLinkEl)
+            loginDialogEl.hidden = true
         } else {
             console.error(await body.error)
             // TODO: 'display error' function & UI Element

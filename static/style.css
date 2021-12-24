@@ -71,6 +71,7 @@ header img {
 }
 
 .dialog {
+    visibility: hidden;
     grid-area: box;
     z-index: 1;
     background-color: rgb(var(--bg-color));

@@ -15,19 +15,19 @@
         </div>
         <nav>
             <ul>
-                <a id="login_link" href="#">
+                <a class="nav_link" id="login_link" href="#">
                     <li>Log In</li>
                 </a>
-                <a id="signup_link" href="#">
+                <a class="nav_link" id="signup_link" href="#">
                     <li>Sign Up</li>
                 </a>
-                <a id="logout_link" href="#" hidden>
+                <a class="nav_link" id="logout_link" href="#" style="visibility:hidden">
                     <li>Log Out</li>
                 </a>
             </ul>
         </nav>
     </header>
-    <div id="login_dialog" class="dialog" hidden>
+    <div id="login_dialog" class="dialog">
         <form action="">
             <label for="login_email">Email: </label>
             <input type="email" name="login_email" id="login_email_field">
@@ -38,7 +38,7 @@
             <input id="login_submit" type="submit" value="Log In">
         </form>
     </div>
-    <div id="signup_dialog" class="dialog" hidden>
+    <div id="signup_dialog" class="dialog">
         <form action="">
             <label for="signup_email">Email: </label>
             <input type="email" name="signup_email" id="signup_email_field">
