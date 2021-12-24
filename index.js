@@ -45,13 +45,17 @@ app.post("/signup", async function (req, res) {
 
     // Reject emails and handles that are too long!
     if (email.length > 200) {
-        sendEmailTooLongError(res)
+        signupError("emailTooLong", res)
         return
     }
 
     if (handle.length > 50) {
-        sendHandleTooLongError(res)
+        signupError("handleTooLong", res)
     }
+
+    // At some point, should check emails against a list of common spam domains
+    // and emit an error if a user tries to sign up with an email address on
+    // that list.
 
     // Doesn't matter how long the password is, we're hashing it with bcrypt anyway.
     /** @type {String} */
@@ -61,7 +65,7 @@ app.post("/signup", async function (req, res) {
     // Reject empty fields!
     // If any of the parameters are missing/empty, exit early and send an error message.
     if (email.length == 0 || handle.length == 0 || pass.length == 0) {
-        sendEmptyError(res)
+        signupError("emptyFields", res)
         return
     }
 
@@ -74,12 +78,12 @@ app.post("/signup", async function (req, res) {
     // shouldn't overwrite existing accounts. 
     // Exit before creating a record.
     if (existingUserByEmail !== undefined) {
-        sendEmailError(res)
+        signupError("uniqueEmail", res)
         return
     }
     if (existingUserByHandle !== undefined) {
-        sendHandleError(res)
-        return;
+        signupError("uniqueHandle", res)
+        return
     }
 
 
@@ -90,7 +94,14 @@ app.post("/signup", async function (req, res) {
     const hash = await bcrypt.hash(req.query.pass, 10)
 
     // TODO: .catch(err => ) DB errors somehow
-    await db.run("insert into users (handle, email, password_hash) values (?, ?, ?)", handle, email, hash)
+    try {
+        await db.run("insert into users (handle, email, password_hash) values (?, ?, ?)", handle, email, hash)
+    } catch (err) {
+        // It's a bit catastrophic if this happens.
+        console.error("DB ERROR! ", err)
+        signupError("databaseError", res)
+        return
+    }
 
     req.session.user = {
         handle: handle,
@@ -105,40 +116,39 @@ app.post("/signup", async function (req, res) {
         email: email
     })
 
+    function signupError(errorID, res) {
+        const errors = {
+            uniqueEmail: {
+                statusCode: 403,
+                body: "Could not sign up with this email address."
+            },
+            uniqueHandle: {
+                statusCode: 403,
+                body: "Could not sign up with this handle."
+            },
+            emptyFields: {
+                statusCode: 403,
+                body: "The handle, email, and password fields are required."
+            },
+            emailTooLong: {
+                statusCode: 403,
+                body: "Email must be 200 characters or shorter."
+            },
+            handleTooLong: {
+                statusCode: 403,
+                body: "Handle must be 50 characters or shorter."
+            },
+            databaseError: {
+                statusCode: 500,
+                body: "Database error."
+            }
+        }
+        res.status(errors[errorID].statusCode).json({
+            error: errors[errorID].body
+        })
+    }
+
     // TODO: seriously, look up the proper error codes!
-    // TODO: could refactor this quite nicely…
-    function sendEmailError(res) {
-        // At some point, should check emails against a list of common spam domains
-        // and emit this error if a user tries to sign up with an email address on
-        // that list.
-        res.status(403).json({
-            error: "Could not sign up with this email address."
-        })
-    }
-
-    function sendHandleError(res) {
-        res.status(403).json({
-            error: "Could not sign up with this handle."
-        })
-    }
-
-    function sendEmptyError(res) {
-        res.status(403).json({
-            error: "The handle, email, and password fields are required."
-        })
-    }
-
-    function sendEmailTooLongError(res) {
-        res.status(403).json({
-            error: "Email must be 200 characters or shorter."
-        })
-    }
-    
-    function sendHandleTooLongError(res) {
-        res.status(403).json({
-            error: "Handle must be 50 characters or shorter."
-        })
-    }
 })
 
 app.post("/login", async function (req, res) {
