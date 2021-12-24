@@ -32,7 +32,7 @@ input {
 
 body {
     display: grid;
-    grid-template: 1fr 70vh 1fr / 1fr 70vh 1fr;
+    grid-template: 1fr 70vw 1fr / 1fr 70vw 1fr;
     grid-template-areas: "head head head"
         ". box . "
         ". .   .";
