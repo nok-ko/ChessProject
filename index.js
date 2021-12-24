@@ -38,27 +38,47 @@ app.get("/", (req, res) => {
 })
 
 app.post("/signup", async function (req, res) {
+    // Trim parameters to fit DB schema requirements
+    /** @type {String} */
     const email = req.query.email.trim().substring(0, 200)
-    const existingUser = await db.get("select * from users where email = ?", email)
+    /** @type {String} */
+    const handle = req.query.handle.trim().substring(0, 50)
+
+    // Doesn't matter how long the password is, we're hashing it with bcrypt anyway.
+    /** @type {String} */
+    const pass = req.query.pass
 
     // TODO: validate everything.
     // Reject empty fields!
+    // If any of the parameters are missing/empty, exit early and send an error message.
+    if (email.length == 0 || handle.length == 0 || pass.length == 0) {
+        sendEmptyError(res)
+        return
+    }
+
     // Reject non-ascii characters in handles or emails?
 
+    // Search the DB for users with the same email or handle
+    const existingUserByEmail = await db.get("select * from users where email = ?", email)
+    const existingUserByHandle = await db.get("select * from users where handle = ?", handle)
     // The user already existing in our system is an error, we
     // shouldn't overwrite existing accounts. 
     // Exit before creating a record.
-    if (existingUser !== undefined) {
+    if (existingUserByEmail !== undefined) {
         sendEmailError(res)
         return
     }
+    if (existingUserByHandle !== undefined) {
+        sendHandleError(res)
+        return;
+    }
+
 
     // Now, hash the password and save to DB!
     // (We should only do this once we're more or less sure the user isn't
     // a spambot, since hashing is slow.)
     // TODO: rate limiting, etc.
     const hash = await bcrypt.hash(req.query.pass, 10)
-    const handle = req.query.handle
 
     // TODO: .catch(err => ) DB errors somehow
     await db.run("insert into users (handle, email, password_hash) values (?, ?, ?)", handle, email, hash)
@@ -76,6 +96,7 @@ app.post("/signup", async function (req, res) {
         email: email
     })
 
+    // TODO: seriously, look up the proper error codes!
 
     function sendEmailError(res) {
         // At some point, should check emails against a list of common spam domains
@@ -84,6 +105,20 @@ app.post("/signup", async function (req, res) {
         res.status(403)
         res.json({
             error: "Could not sign up with this email address."
+        })
+    }
+
+    function sendHandleError(res) {
+        res.status(403)
+        res.json({
+            error: "Could not sign up with this handle."
+        })
+    }
+
+    function sendEmptyError(res) {
+        res.status(403)
+        res.json({
+            error: "The handle, email, and password fields are required."
         })
     }
 })
