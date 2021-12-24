@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,6 +8,7 @@
     <title>Chess!</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <header>
         <div class="logos">
@@ -31,10 +33,9 @@
         <form action="">
             <label for="login_email">Email: </label>
             <input type="email" name="login_email" id="login_email_field">
-            
             <label for="login_pass">Password: </label>
             <input type="password" name="login_pass" id="login_pass_field">
-            
+            <span class="errorMessage">An error has occurred.</span>
             <input id="login_submit" type="submit" value="Log In">
         </form>
     </div>
@@ -51,7 +52,7 @@
 
             <label for="signup_pass_confirm">Confirm Password: </label>
             <input type="password" name="signup_pass_confirm" id="signup_pass_confirm_field">
-
+            <span class="errorMessage">An error has occurred.</span>
             <input type="submit" id="signup_submit" value="Sign Up">
         </form>
     </div>

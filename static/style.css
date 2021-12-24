@@ -79,7 +79,7 @@ header img {
 
 .dialog>form {
     display: grid;
-    grid: repeat(3, 2rem) / max-content 1fr;
+    grid: repeat(6, 2rem) / max-content 1fr;
     padding: 2rem 4rem;
     gap: 0.5rem;
 }
@@ -94,6 +94,20 @@ header img {
     font-size: large;
     max-width: 6rem;
     grid-column: 1 / span 2;
+}
+
+.dialog > form label {
+    justify-self: end;
+    align-self: center;
+}
+
+.dialog > form .errorMessage {
+    display: inline-block;
+    grid-column: 1 / span 2;
+    font-size: smaller;
+    color: red;
+    visibility: hidden;
+    text-align: center;
 }
 
 #hoversquare {
