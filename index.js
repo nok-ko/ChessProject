@@ -15,7 +15,8 @@ const sessionConfig = {
     saveUninitialized: false,
     resave: false,
     cookie: {
-        secure: false
+        secure: false, // only insecure in dev environments
+        maxAge: 360000 // an hour (in ms)
     }
 }
 
@@ -127,6 +128,32 @@ app.post("/login", async function (req, res) {
         })
     }
 })
+
+app.get("/session", async function (req, res) {
+    console.log("=>[/session]")
+    if (req.sessionID) {
+        res.status(200)
+            .json({
+                user: req.session.user
+            })
+    } else {
+        res.status(403)
+            .json({
+                error: "No session!"
+            })
+    }
+})
+
+app.post("/logout", async function (req, res) {
+    req.session.destroy()
+    res.sendStatus(200)
+})
+
+// app.post("/ping", async function (req, res) {
+//     res.status(200)
+//        .json("???")
+//     console.log(`ping from ${JSON.stringify(req.session)}`)
+// })
 
 async function init() {
     console.log(`Running on http://localhost:${server.address().port}`)

@@ -15,7 +15,7 @@ const latestCoordinates = [0, 0]
  * @param  {HTMLElement} shownEl - element to show (toggle its `visibility` property.)
  */
 function toggleHiddenOneOfClass(elementClass, shownEl) {
-    const oldVisibility = shownEl.style.getPropertyValue("visibility") ?? "visible";
+    const oldVisibility = shownEl.style.getPropertyValue("visibility") ?? "visible"
 
     for (const elInClass of document.getElementsByClassName(elementClass)) {
         elInClass.style.setProperty("visibility", "hidden")
@@ -41,8 +41,28 @@ signupLinkEl.addEventListener("click",
     () => toggleHiddenOneOfClass("dialog", signupDialogEl)
 )
 
-document.getElementById("login_submit").addEventListener("click", function handleLogin(event) {
+logoutLinkEl.addEventListener("click", async function () {
+    const logoutURL = new URL(`${location.origin}/logout`)
+    const logoutResponse = await fetch(logoutURL, {
+        method: "POST"
+    })
+    if (logoutResponse.ok) {
+        console.log("Logged out!")
+        for (const linkEl of document.getElementsByClassName("nav_link")) {
+            linkEl.style.setProperty("visibility", "visible")
+        }
+        this.style.setProperty("visibility", "hidden")
+    }
+})
+
+document.getElementById("login_submit").addEventListener("click", async function handleLogin(event) {
     event.preventDefault() // don't reload the page on submit!
+    const loginFormEl = loginDialogEl.querySelector("form")
+
+    if (!loginFormEl.checkValidity()) {
+        // TODO: Display error
+        return;
+    }
 
     /** @type {HTMLInputElement} */
     const emailField = document.getElementById("login_email_field")
@@ -53,25 +73,22 @@ document.getElementById("login_submit").addEventListener("click", function handl
     url.searchParams.append("email", emailField.value)
     url.searchParams.append("pass", passField.value)
 
-    // console.log(url.toString())
-
-    fetch(url, {
+    const response = await fetch(url, {
         method: "POST"
-    }).then(async res => {
-        const body = await res.json()
-        if (res.ok) {
-            console.log("Logged in! Got session ID: " + body.sessionID)
-            // Display logout link, and hide the dialog
-            toggleHiddenOneOfClass("nav_link", logoutLinkEl)
-            loginDialogEl.hidden = true
-        } else {
-            console.error(await body.error)
-            // TODO: 'display error' function & UI Element
-        }
     })
+    const body = await response.json()
+    if (response.ok) {
+        console.log("Logged in! Got session ID: " + body.sessionID)
+        // Display logout link, and hide the dialog
+        toggleHiddenOneOfClass("nav_link", logoutLinkEl)
+        loginDialogEl.style.setProperty("visibility", "hidden")
+    } else {
+        console.error(await body.error)
+        // TODO: 'display error' function & UI Element
+    }
 })
 
-document.getElementById("signup_submit").addEventListener("click", function handleLogin(event) {
+document.getElementById("signup_submit").addEventListener("click", async function handleLogin(event) {
     event.preventDefault() // don't reload the page on submit!
 
     // TODO: validate handles and emails before letting users submit the form.
@@ -105,21 +122,21 @@ document.getElementById("signup_submit").addEventListener("click", function hand
 
     // console.log(url.toString())
 
-    fetch(url, {
+    // TODO: error handling
+    const res = await fetch(url, {
         method: "POST"
-    }).then(async res => {
-        const body = await res.json()
-        if (res.ok) {
-            console.log("Signed up! Got session ID: " + body.sessionID)
-            // TODO: reset field values?
-            // TODO: display “log out” button
-            // Close the dialog
-            signupDialogEl.hidden = true;
-        } else {
-            console.error(await body.error)
-            // TODO: 'display error' function & UI Element
-        }
     })
+    const body = await res.json()
+    if (res.ok) {
+        console.log("Signed up! Got session ID: " + body.sessionID)
+        // TODO: reset field values?
+        // TODO: display “log out” button
+        // Close the dialog
+        signupDialogEl.hidden = true;
+    } else {
+        console.error(await body.error)
+        // TODO: 'display error' function & UI Element
+    }
 })
 
 /**
@@ -204,3 +221,25 @@ boxEl.addEventListener("click", (e => {
     }
     movePiece(firstPiece, ...latestCoordinates)
 }))
+
+// Dev mojo
+
+async function ping() {
+    const url = new URL(location.origin)
+    url.pathname = "session"
+    console.log(`pinging on ${url}`)
+    try {
+        const response = await fetch(url, {
+            method: "GET"
+        })
+        console.log("got pong")
+        console.log(`got pong: ${JSON.stringify(await response.json())}`)
+    } catch (err) {
+        console.error("error!?")
+        console.error(err)
+    }
+}
+
+function startPinging() {
+    return setInterval(ping, 500)
+}
