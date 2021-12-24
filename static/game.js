@@ -88,7 +88,7 @@ document.getElementById("login_submit").addEventListener("click", async function
     }
 })
 
-document.getElementById("signup_submit").addEventListener("click", async function handleLogin(event) {
+document.getElementById("signup_submit").addEventListener("click", async function handleSignup(event) {
     event.preventDefault() // don't reload the page on submit!
 
     // TODO: validate handles and emails before letting users submit the form.
