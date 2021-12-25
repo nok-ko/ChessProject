@@ -22,7 +22,6 @@ const sessionConfig = {
 
 // Secure cookies require SSL, i.e. running behind a reverse proxy
 // So, only enable them in production environments. 
-// TODO: Make this actually work?
 // ($ npm run run-prod)
 if (app.get('env') === 'production') {
     app.set('trust proxy', 1) // trust first proxy (nginx)
@@ -61,7 +60,6 @@ app.post("/signup", async function (req, res) {
     /** @type {String} */
     const pass = req.query.pass
 
-    // TODO: validate everything.
     // Reject empty fields!
     // If any of the parameters are missing/empty, exit early and send an error message.
     if (email.length == 0 || handle.length == 0 || pass.length == 0) {
@@ -69,7 +67,7 @@ app.post("/signup", async function (req, res) {
         return
     }
 
-    // Reject non-ascii characters in handles or emails?
+    // TODO: Reject non-ascii characters in handles or emails?
 
     // Search the DB for users with the same email or handle
     const existingUserByEmail = await db.get("select * from users where email = ?", email)
@@ -93,7 +91,6 @@ app.post("/signup", async function (req, res) {
     // TODO: rate limiting, etc.
     const hash = await bcrypt.hash(req.query.pass, 10)
 
-    // TODO: .catch(err => ) DB errors somehow
     try {
         await db.run("insert into users (handle, email, password_hash) values (?, ?, ?)", handle, email, hash)
     } catch (err) {

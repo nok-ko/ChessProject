@@ -26,6 +26,29 @@ function toggleHiddenOneOfClass(elementClass, shownEl) {
         shownEl.style.setProperty("visibility", "visible")
     }
 }
+/**
+ * Wraps `fetch()` so that it times out after `timeoutMs` milliseconds, and can be cancelled.
+ * @param  {RequestInfo} request - to pass to `fetch()`
+ * @param  {RequestInit} opts - to pass to `fetch()`
+ * @param  {Number} timeoutMs - how many milliseconds without a response should lead to timeout
+ * @returns {{cancel: Function, response: Promise<Response>}} 
+ * where `response` is a `Promise<Response>` from the wrapped `fetch(…)` call, 
+ * and `cancel()` is 0-argument method that cancels the `fetch` once called.
+ */
+function fetchWithTimeout(request, opts, timeoutMs) {
+    const controller = new AbortController();
+    const signal = controller.signal;
+    // Cancel after `timeoutMs` milliseconds.
+    setTimeout(() => controller.abort(), timeoutMs)
+    return {
+        cancel: () => controller.abort(),
+        response: fetch(request, {
+            ...opts,
+            signal
+        })
+    };
+}
+
 
 const logoutLinkEl = document.getElementById("logout_link")
 const signupLinkEl = document.getElementById("signup_link")
@@ -41,11 +64,20 @@ signupLinkEl.addEventListener("click",
     () => toggleHiddenOneOfClass("dialog", signupDialogEl)
 )
 
-logoutLinkEl.addEventListener("click", async function () {
+logoutLinkEl.addEventListener("click", async function handleLogout() {
     const logoutURL = new URL(`${location.origin}/logout`)
-    const logoutResponse = await fetch(logoutURL, {
-        method: "POST"
-    })
+    let logoutResponse
+    try {
+        logoutResponse = await fetchWithTimeout(logoutURL, {
+            method: "POST"
+        }, 6000).response
+    } catch (err) {
+        console.error(err)
+        if (err.name == "AbortError") {
+            console.error("Request timed out!")
+            return // Stay "logged in" if the request times out!
+        }
+    }
     if (logoutResponse.ok) {
         console.log("Logged out!")
         for (const linkEl of document.getElementsByClassName("nav_link")) {
@@ -73,9 +105,19 @@ document.getElementById("login_submit").addEventListener("click", async function
     url.searchParams.append("email", emailField.value)
     url.searchParams.append("pass", passField.value)
 
-    const response = await fetch(url, {
-        method: "POST"
-    })
+    let response
+    try {
+        response = await fetchWithTimeout(url, {
+            method: "POST"
+        }, 6000).response
+    } catch (err) {
+        console.error(err)
+        if (err.name == "AbortError") {
+            //Timed out, exit early
+            console.error("Request timed out.")
+            return
+        }
+    }
     const body = await response.json()
     if (response.ok) {
         console.log("Logged in! Got session ID: " + body.sessionID)
@@ -123,11 +165,21 @@ document.getElementById("signup_submit").addEventListener("click", async functio
     // console.log(url.toString())
 
     // TODO: error handling
-    const res = await fetch(url, {
-        method: "POST"
-    })
-    const body = await res.json()
-    if (res.ok) {
+    let response
+    try {
+        response = await fetchWithTimeout(url, {
+            method: "POST"
+        }, 6000).response
+    } catch (err) {
+        console.error(err)
+        if (err.name == "AbortError") {
+            //Timed out, exit early
+            console.error("Request timed out.")
+            return
+        }
+    }
+    const body = await response.json()
+    if (response.ok) {
         console.log("Signed up! Got session ID: " + body.sessionID)
         // TODO: reset field values?
         // TODO: display “log out” button
@@ -229,12 +281,15 @@ async function ping() {
     url.pathname = "session"
     console.log(`pinging on ${url}`)
     try {
-        const response = await fetch(url, {
-            method: "GET"
-        })
+        const response = await fetchWithTimeout(url, {
+            method: "POST"
+        }, 6000).response
         console.log("got pong")
         console.log(`got pong: ${JSON.stringify(await response.json())}`)
     } catch (err) {
+        if (err.name == "AbortError") {
+            console.error("Request timed out!")
+        }
         console.error("error!?")
         console.error(err)
     }
