@@ -119,10 +119,10 @@ header img {
 }
 
 #box {
-    box-sizing: border-box;
-    position: relative;
-    border: 1px solid black;
-    grid-area: box;
+	box-sizing: border-box;
+	position: relative;
+	grid-area: box;
+	background-image: url("/assets/boards/blue.svg");
 }
 
 .piecesize {
