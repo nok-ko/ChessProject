@@ -249,8 +249,8 @@ boxEl.addEventListener("mousemove", e => {
     }
     if (targetEl.classList.contains("piecesize")) {
         // We're hovering over a piece/piecelike element, so just use its stylesheet properties.
-        offsetX = parseInt(targetEl.style.getPropertyValue("--piece-offset-x"))
-        offsetY = parseInt(targetEl.style.getPropertyValue("--piece-offset-y"))
+        offsetX = Number(targetEl.style.getPropertyValue("--piece-offset-x"))
+        offsetY = Number(targetEl.style.getPropertyValue("--piece-offset-y"))
     }
 
     // e.offsetX and e.offsetY are coordinates relative to the board element:
